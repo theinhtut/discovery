@@ -18,7 +18,7 @@ use f3::{
     Lsm303dlhc,
 };
 
-use lsm303agr::{AccelOutputDataRate, Lsm303agr, UnscaledMeasurement};
+use lsm303agr::{MagOutputDataRate, AccelOutputDataRate, Lsm303agr, UnscaledMeasurement};
 
 pub fn init() -> (Leds, Lsm303dlhc, Delay, ITM) {
     let cp = cortex_m::Peripherals::take().unwrap();
@@ -67,10 +67,11 @@ pub fn init_lsm303agr() -> (Leds, UnscaledMeasurement, Delay, ITM) {
 
     let mut sensor = Lsm303agr::new_with_i2c(i2c);
     sensor.init().unwrap();
-    sensor.set_accel_odr(AccelOutputDataRate::Hz50).unwrap();
-    // sensor.into_mag_continuous();
+    sensor.set_mag_odr(MagOutputDataRate::Hz100).unwrap();
+    let mut sensor = sensor.into_mag_continuous().ok().unwrap();
+    // sensor.set_accel_odr(AccelOutputDataRate::Hz50).unwrap();
 
-    let data = sensor.accel_data().unwrap();
+    let data = sensor.mag_data().unwrap();
 
     let delay = Delay::new(cp.SYST, clocks);
 
